@@ -1,6 +1,8 @@
 
 #include "types.h"
 #include "gdt.h"
+#include "interrupts.h"
+#include "keyboard.h"
 
 void printf(char* str)
 {
@@ -61,7 +63,12 @@ extern "C" void kernelMain(void* multiboot_structure, uint32_t magicnumber)
   printf("Hello World! .. https://www.AlgorithmMan.de\n");
   
   GlobalDescriptorTable gdt;
+  InterruptManager interrupts(&gdt);
+  
+  KeyboardDriver keyboard(&interrupts);  
 
+  interrupts.Activate();
+  
   while(1);
   
 }
