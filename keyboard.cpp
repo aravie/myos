@@ -2,7 +2,7 @@
 #include "keyboard.h"
 
 KeyboardDriver::KeyboardDriver(InterruptManager* manager)
-: InterruptHandler(0x21, manager),
+: InterruptHandler(manager, 0x21),
 dataport(0x60),
 commandport(0x64)
 {
