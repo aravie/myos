@@ -1,45 +1,51 @@
 
 #include "mouse.h"
+void printf(char*);
 
     MouseEventHandler::MouseEventHandler()
     {
-
-
     }
-
+    
     void MouseEventHandler::OnActivate()
     {
     }
+    
     void MouseEventHandler::OnMouseDown(uint8_t button)
     {
-
     }
+    
     void MouseEventHandler::OnMouseUp(uint8_t button)
     {
-
     }
+    
     void MouseEventHandler::OnMouseMove(int x, int y)
     {
-
     }
+
+
+
+
 
     MouseDriver::MouseDriver(InterruptManager* manager, MouseEventHandler* handler)
     : InterruptHandler(manager, 0x2C),
     dataport(0x60),
     commandport(0x64)
     {
-	this->handler = handler;
+        this->handler = handler;
     }
 
     MouseDriver::~MouseDriver()
     {
     }
-
+    
     void MouseDriver::Activate()
     {
         offset = 0;
         buttons = 0;
 
+        if(handler != 0)
+            handler->OnActivate();
+        
         commandport.Write(0xA8);
         commandport.Write(0x20); // command 0x60 = read controller command byte
         uint8_t status = dataport.Read() | 2;
@@ -48,7 +54,7 @@
 
         commandport.Write(0xD4);
         dataport.Write(0xF4);
-        dataport.Read();
+        dataport.Read();        
     }
     
     uint32_t MouseDriver::HandleInterrupt(uint32_t esp)
@@ -58,32 +64,19 @@
             return esp;
 
         buffer[offset] = dataport.Read();
-
-	if(handler == 0)
-		return esp;
-
-       offset = (offset + 1) % 3;
+        
+        if(handler == 0)
+            return esp;
+        
+        offset = (offset + 1) % 3;
 
         if(offset == 0)
         {
             if(buffer[1] != 0 || buffer[2] != 0)
             {
-
-		handler->OnMouseMove(buffer[1], buffer[2]);
-
-		/*for(uint8_t i = 0; i < 3; i++)
-		{
-			if((buffer[0] & (0x01 << i)) != (buttons & (0x01 << i)))
-			{
-                		VideoMemory[80*y+x] = (VideoMemory[80*y+x] & 0x0F00) << 4
-                                    		    | (VideoMemory[80*y+x] & 0xF000) >> 4
-                                    		    | (VideoMemory[80*y+x] & 0x00FF);				
-			}
-		}
-		buttons = buffer[0];*/
+                handler->OnMouseMove(buffer[1], -buffer[2]);
             }
 
-            
             for(uint8_t i = 0; i < 3; i++)
             {
                 if((buffer[0] & (0x1<<i)) != (buttons & (0x1<<i)))
@@ -95,7 +88,7 @@
                 }
             }
             buttons = buffer[0];
-            
         }
+        
         return esp;
     }

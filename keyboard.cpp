@@ -1,21 +1,19 @@
 
 #include "keyboard.h"
 
+
+
 KeyboardEventHandler::KeyboardEventHandler()
 {
-
-
 }
 
 void KeyboardEventHandler::OnKeyDown(char)
 {
-
 }
+
 void KeyboardEventHandler::OnKeyUp(char)
 {
-
 }
-
 
 
 
@@ -26,12 +24,15 @@ KeyboardDriver::KeyboardDriver(InterruptManager* manager, KeyboardEventHandler *
 dataport(0x60),
 commandport(0x64)
 {
-	this->handler = handler;
+    this->handler = handler;
 }
 
 KeyboardDriver::~KeyboardDriver()
 {
 }
+
+void printf(char*);
+void printfHex(uint8_t);
 
 void KeyboardDriver::Activate()
 {
@@ -43,20 +44,15 @@ void KeyboardDriver::Activate()
     commandport.Write(0x60); // command 0x60 = set controller command byte
     dataport.Write(status);
     dataport.Write(0xf4);
-
 }
-
-void printf(char*);
-
-void printfHex(uint8_t);
 
 uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
 {
     uint8_t key = dataport.Read();
-
+    
     if(handler == 0)
-	return esp;
-
+        return esp;
+    
     if(key < 0x80)
     {
         switch(key)
@@ -109,8 +105,8 @@ uint32_t KeyboardDriver::HandleInterrupt(uint32_t esp)
 
             default:
             {
-		printf("KEYBOARD 0x");
-		printfHex(key);
+                printf("KEYBOARD 0x");
+                printfHex(key);
                 break;
             }
         }
