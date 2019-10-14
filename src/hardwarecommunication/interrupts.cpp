@@ -1,6 +1,5 @@
 
 #include <hardwarecommunication/interrupts.h>
-
 using namespace myos::common;
 using namespace myos::hardwarecommunication;
 

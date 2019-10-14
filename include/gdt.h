@@ -5,6 +5,7 @@
 
 namespace myos
 {
+    
     class GlobalDescriptorTable
     {
         public:
@@ -41,5 +42,5 @@ namespace myos
     };
 
 }
-
+    
 #endif
