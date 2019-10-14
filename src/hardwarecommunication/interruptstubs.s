@@ -19,6 +19,7 @@ _ZN4myos21hardwarecommunication16InterruptManager19HandleException\num\()Ev:
 .global _ZN4myos21hardwarecommunication16InterruptManager26HandleInterruptRequest\num\()Ev
 _ZN4myos21hardwarecommunication16InterruptManager26HandleInterruptRequest\num\()Ev:
     movb $\num + IRQ_BASE, (interruptnumber)
+    pushl $0
     jmp int_bottom
 .endm
 
@@ -65,11 +66,20 @@ HandleInterruptRequest 0x31
 int_bottom:
 
     # register sichern
-    pusha
-    pushl %ds
-    pushl %es
-    pushl %fs
-    pushl %gs
+    #pusha
+    #pushl %ds
+    #pushl %es
+    #pushl %fs
+    #pushl %gs
+
+    pushl %ebp
+    pushl %edi
+    pushl %esi
+
+    pushl %edx
+    pushl %ecx
+    pushl %ebx
+    pushl %eax
 
     # ring 0 segment register laden
     #cld
@@ -77,19 +87,29 @@ int_bottom:
     #mov %eax, %eds
     #mov %eax, %ees
 
-    # C++ Handler aufrufen
+    # call C++ Handler
     pushl %esp
     push (interruptnumber)
     call _ZN4myos21hardwarecommunication16InterruptManager15HandleInterruptEhj
-    add %esp, 6
-    mov %eax, %esp # den stack wechseln
+    #add %esp, 6
+    mov %eax, %esp # switch the stack
 
-    # register laden
-    pop %gs
-    pop %fs
-    pop %es
-    pop %ds
-    popa
+    # restore registers
+    popl %eax
+    popl %ebx
+    popl %ecx
+    popl %edx
+
+    popl %esi
+    popl %edi
+    popl %ebp
+    #pop %gs
+    #pop %fs
+    #pop %es
+    #pop %ds
+    #popa
+
+   add $4, %esp
 
 .global _ZN4myos21hardwarecommunication16InterruptManager15InterruptIgnoreEv
 _ZN4myos21hardwarecommunication16InterruptManager15InterruptIgnoreEv:

@@ -9,9 +9,10 @@
 #include <drivers/vga.h>
 #include <gui/desktop.h>
 #include <gui/window.h>
+#include <multitasking.h>
 
 
-#define GRAPHICSMODE
+//#define GRAPHICSMODE
 
 
 using namespace myos;
@@ -119,8 +120,17 @@ public:
 };
 
 
+void taskA()
+{
+	while(true)
+		printf("A");
+}
 
-
+void taskB()
+{
+	while(true)
+		printf("B");
+}
 
 
 
@@ -142,7 +152,14 @@ extern "C" void kernelMain(const void* multiboot_structure, uint32_t /*multiboot
     printf("Hello World! --- http://www.AlgorithMan.de\n");
 
     GlobalDescriptorTable gdt;
-    InterruptManager interrupts(0x20, &gdt);
+
+    TaskManager taskManager;
+    Task task1(&gdt, taskA);
+    Task task2(&gdt, taskB);
+    taskManager.AddTask(&task1);
+    taskManager.AddTask(&task2);
+
+    InterruptManager interrupts(0x20, &gdt, &taskManager);
     
     printf("Initializing Hardware, Stage 1\n");
     
